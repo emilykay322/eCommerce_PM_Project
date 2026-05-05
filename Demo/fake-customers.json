@@ -1,0 +1,341 @@
+{
+  "customers": [
+    {
+      "id": "cust-001",
+      "name": "Maya Patel",
+      "email": "maya.patel@email.com",
+      "phone": "555-304-1182",
+      "address": {
+        "street": "412 Birchwood Ave",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78702"
+      },
+      "account": {
+        "member_since": "2022-03-14",
+        "plan": "Premium",
+        "status": "active",
+        "lifetime_value": 1842.50,
+        "nps_score": 7,
+        "churn_risk": "medium",
+        "preferred_language": "en"
+      },
+      "payment": {
+        "method": "Visa",
+        "last_four": "4242",
+        "expiry": "2027-08"
+      }
+    },
+    {
+      "id": "cust-002",
+      "name": "Derek Okafor",
+      "email": "derek.okafor@email.com",
+      "phone": "555-812-4490",
+      "address": {
+        "street": "89 Lakeview Drive",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60614"
+      },
+      "account": {
+        "member_since": "2021-09-05",
+        "plan": "Standard",
+        "status": "active",
+        "lifetime_value": 3210.00,
+        "nps_score": 4,
+        "churn_risk": "high",
+        "preferred_language": "en"
+      },
+      "payment": {
+        "method": "Mastercard",
+        "last_four": "8891",
+        "expiry": "2026-03"
+      }
+    }
+  ],
+
+  "orders": [
+    {
+      "id": "ORD-4471",
+      "customer_id": "cust-001",
+      "placed_date": "2026-04-28",
+      "status": "out_for_delivery",
+      "estimated_delivery": "2026-05-02",
+      "items": [
+        {
+          "sku": "SKU-WH-900",
+          "name": "Wireless Headphones",
+          "qty": 1,
+          "unit_price": 89.99
+        }
+      ],
+      "subtotal": 89.99,
+      "shipping": 0.00,
+      "tax": 7.42,
+      "total": 97.41,
+      "shipping_address": {
+        "street": "412 Birchwood Ave",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78702"
+      },
+      "carrier": "FedEx",
+      "tracking_number": "274899234501",
+      "tracking_url": "https://fedex.com/track?num=274899234501",
+      "payment_method": "Visa ending 4242",
+      "refunds": []
+    },
+    {
+      "id": "ORD-4392",
+      "customer_id": "cust-001",
+      "placed_date": "2026-04-22",
+      "status": "delivered",
+      "delivered_date": "2026-04-25",
+      "items": [
+        {
+          "sku": "SKU-PC-220",
+          "name": "Phone Case — Midnight Black",
+          "qty": 1,
+          "unit_price": 24.99
+        }
+      ],
+      "subtotal": 24.99,
+      "shipping": 0.00,
+      "tax": 2.06,
+      "total": 27.05,
+      "shipping_address": {
+        "street": "412 Birchwood Ave",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78702"
+      },
+      "carrier": "FedEx",
+      "tracking_number": "274899100293",
+      "tracking_url": "https://fedex.com/track?num=274899100293",
+      "payment_method": "Visa ending 4242",
+      "refunds": []
+    },
+    {
+      "id": "ORD-4180",
+      "customer_id": "cust-001",
+      "placed_date": "2026-03-10",
+      "status": "returned",
+      "items": [
+        {
+          "sku": "SKU-KB-550",
+          "name": "Mechanical Keyboard — Compact",
+          "qty": 1,
+          "unit_price": 119.00
+        }
+      ],
+      "subtotal": 119.00,
+      "shipping": 0.00,
+      "tax": 9.81,
+      "total": 128.81,
+      "shipping_address": {
+        "street": "412 Birchwood Ave",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78702"
+      },
+      "carrier": "FedEx",
+      "tracking_number": "274811100293",
+      "payment_method": "Visa ending 4242",
+      "refunds": [
+        {
+          "refund_id": "REF-0091",
+          "amount": 128.81,
+          "reason": "Customer return — item not as described",
+          "issued_date": "2026-03-20",
+          "status": "completed"
+        }
+      ]
+    },
+    {
+      "id": "ORD-5510",
+      "customer_id": "cust-002",
+      "placed_date": "2026-04-30",
+      "status": "processing",
+      "estimated_ship_date": "2026-05-03",
+      "items": [
+        {
+          "sku": "SKU-MS-340",
+          "name": "Wireless Mouse",
+          "qty": 1,
+          "unit_price": 49.99
+        },
+        {
+          "sku": "SKU-MMP-10",
+          "name": "Mouse Pad — XL",
+          "qty": 1,
+          "unit_price": 19.99
+        }
+      ],
+      "subtotal": 69.98,
+      "shipping": 5.99,
+      "tax": 6.27,
+      "total": 82.24,
+      "shipping_address": {
+        "street": "89 Lakeview Drive",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60614"
+      },
+      "carrier": null,
+      "tracking_number": null,
+      "payment_method": "Mastercard ending 8891",
+      "refunds": []
+    },
+    {
+      "id": "ORD-5280",
+      "customer_id": "cust-002",
+      "placed_date": "2026-04-10",
+      "status": "delivered",
+      "delivered_date": "2026-04-13",
+      "items": [
+        {
+          "sku": "SKU-WC-770",
+          "name": "Webcam 1080p",
+          "qty": 1,
+          "unit_price": 74.99
+        }
+      ],
+      "subtotal": 74.99,
+      "shipping": 0.00,
+      "tax": 6.56,
+      "total": 81.55,
+      "shipping_address": {
+        "street": "89 Lakeview Drive",
+        "city": "Chicago",
+        "state": "IL",
+        "zip": "60614"
+      },
+      "carrier": "FedEx",
+      "tracking_number": "274811200487",
+      "tracking_url": "https://fedex.com/track?num=274811200487",
+      "payment_method": "Mastercard ending 8891",
+      "refunds": []
+    }
+  ],
+
+  "invoices": [
+    {
+      "id": "INV-2291",
+      "customer_id": "cust-001",
+      "order_id": "ORD-4471",
+      "issued_date": "2026-04-28",
+      "due_date": "2026-05-28",
+      "status": "paid",
+      "amount": 97.41,
+      "paid_date": "2026-04-28",
+      "payment_method": "Visa ending 4242",
+      "line_items": [
+        { "description": "Wireless Headphones x1", "amount": 89.99 },
+        { "description": "Shipping", "amount": 0.00 },
+        { "description": "Tax (8.25%)", "amount": 7.42 }
+      ]
+    },
+    {
+      "id": "INV-2210",
+      "customer_id": "cust-001",
+      "order_id": "ORD-4392",
+      "issued_date": "2026-04-22",
+      "due_date": "2026-05-22",
+      "status": "paid",
+      "amount": 27.05,
+      "paid_date": "2026-04-22",
+      "payment_method": "Visa ending 4242",
+      "note": "Duplicate charge detected — second charge of $27.05 on same date has no matching order. Flagged for billing review.",
+      "duplicate_charge": {
+        "detected": true,
+        "amount": 27.05,
+        "charge_date": "2026-04-22",
+        "status": "under_review"
+      },
+      "line_items": [
+        { "description": "Phone Case — Midnight Black x1", "amount": 24.99 },
+        { "description": "Shipping", "amount": 0.00 },
+        { "description": "Tax (8.25%)", "amount": 2.06 }
+      ]
+    },
+    {
+      "id": "INV-3301",
+      "customer_id": "cust-002",
+      "order_id": "ORD-5510",
+      "issued_date": "2026-04-30",
+      "due_date": "2026-05-30",
+      "status": "pending",
+      "amount": 82.24,
+      "paid_date": null,
+      "payment_method": "Mastercard ending 8891",
+      "line_items": [
+        { "description": "Wireless Mouse x1", "amount": 49.99 },
+        { "description": "Mouse Pad — XL x1", "amount": 19.99 },
+        { "description": "Shipping", "amount": 5.99 },
+        { "description": "Tax (8.25%)", "amount": 6.27 }
+      ]
+    }
+  ],
+
+  "tickets": [
+    {
+      "id": "TKT-8801",
+      "customer_id": "cust-001",
+      "created_date": "2026-04-20",
+      "resolved_date": null,
+      "status": "open",
+      "channel": "phone",
+      "category": "billing",
+      "subject": "Duplicate charge on Apr 22 invoice",
+      "priority": "high",
+      "assigned_to": "Sarah Chen",
+      "contact_count": 2,
+      "notes": [
+        {
+          "date": "2026-04-20",
+          "author": "Sarah Chen",
+          "note": "Customer called about duplicate charge of $27.05 on Apr 22. Could not identify source of second charge. Escalated to billing team. Told customer to expect resolution within 3–5 business days."
+        },
+        {
+          "date": "2026-04-23",
+          "author": "Marcus Webb",
+          "note": "Billing team reviewed. Duplicate charge confirmed — processing error on gateway side. Refund approved but not yet issued. Waiting on finance sign-off."
+        }
+      ],
+      "resolution": null,
+      "root_cause": null
+    },
+    {
+      "id": "TKT-7744",
+      "customer_id": "cust-002",
+      "created_date": "2026-03-28",
+      "resolved_date": "2026-04-02",
+      "status": "closed",
+      "channel": "chat",
+      "category": "shipping",
+      "subject": "Order ORD-5280 — delayed delivery",
+      "priority": "medium",
+      "assigned_to": "Jordan Mills",
+      "contact_count": 3,
+      "notes": [
+        {
+          "date": "2026-03-28",
+          "author": "Jordan Mills",
+          "note": "Customer contacted about ORD-5280 not arriving on expected date of Mar 26. Carrier delay confirmed — new ETA Apr 2. Sent apology email with $10 credit."
+        },
+        {
+          "date": "2026-04-01",
+          "author": "Jordan Mills",
+          "note": "Customer followed up — package still not received. Contacted FedEx directly. Confirmed out for delivery Apr 2."
+        },
+        {
+          "date": "2026-04-02",
+          "author": "Jordan Mills",
+          "note": "Customer confirmed delivery. Closed ticket. Customer expressed frustration about delay — sentiment negative. NPS follow-up recommended."
+        }
+      ],
+      "resolution": "Package delivered after carrier delay. $10 account credit applied.",
+      "root_cause": "carrier_delay"
+    }
+  ]
+}

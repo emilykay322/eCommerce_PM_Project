@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>ShopFlow Support</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      gap: 28px;
+    }
+
+    /* ── Demo sidebar — sits to the right of the phone, never overlaps ── */
+    .demo-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-self: center;
+      flex-shrink: 0;
+    }
+    .demo-sidebar-label {
+      font-size: 10px;
+      font-weight: 600;
+      color: #9ca3af;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 2px;
+    }
+    .demo-btn {
+      background: #fff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 13px;
+      color: #374151;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .demo-btn:hover {
+      border-color: #a5b4fc;
+      background: #f0f4ff;
+      color: #4f46e5;
+    }
+
+    /* ── Phone shell ── */
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: #fff;
+      border-radius: 44px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* ── Header ── */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #f0f0f0;
+      padding: 16px 20px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+    .header-avatar {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 18px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .header-info { flex: 1; }
+    .header-name { font-size: 16px; font-weight: 600; color: #111; }
+    .header-status { font-size: 12px; color: #22c55e; display: flex; align-items: center; gap: 4px; }
+    .header-status::before {
+      content: ''; width: 6px; height: 6px;
+      background: #22c55e; border-radius: 50%; display: inline-block;
+    }
+    .header-btn {
+      background: none; border: none; cursor: pointer;
+      color: #6b7280; font-size: 20px; padding: 4px;
+      border-radius: 8px;
+    }
+    .header-btn:hover { background: #f3f4f6; }
+
+    /* ── AI disclosure banner ── */
+    .ai-banner {
+      background: #f0f4ff;
+      border-bottom: 1px solid #e0e7ff;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .ai-banner-text {
+      font-size: 12px; color: #4f46e5;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .ai-banner-text span { font-size: 14px; }
+    .ai-banner-link {
+      font-size: 12px; color: #4f46e5;
+      text-decoration: underline; cursor: pointer; border: none;
+      background: none; font-weight: 500;
+    }
+
+    /* ── Message thread ── */
+    .thread {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scroll-behavior: smooth;
+    }
+
+    /* ── Message bubbles ── */
+    .msg-row {
+      display: flex;
+      gap: 8px;
+    }
+    .msg-row.user { justify-content: flex-end; }
+    .msg-row.system { justify-content: center; }
+
+    /* Content wrappers — constrain width so bubbles don't stretch */
+    .user-msg-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      max-width: 72%;
+    }
+    .ai-msg-content {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      max-width: 78%;
+    }
+
+    .msg-avatar {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff; font-size: 12px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; margin-top: auto;
+    }
+
+    .bubble {
+      /* width shrinks to fit text; max-width comes from parent wrapper */
+      width: fit-content;
+      max-width: 100%;
+      padding: 10px 14px;
+      border-radius: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #111;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+    }
+    .bubble.ai {
+      background: #f3f4f6;
+      border-bottom-left-radius: 4px;
+    }
+    .bubble.user {
+      background: #4f46e5;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .bubble.system {
+      background: transparent;
+      color: #9ca3af;
+      font-size: 12px;
+      text-align: center;
+      padding: 4px 8px;
+      width: auto;
+    }
+    .bubble.escalated {
+      background: #fef3c7;
+      border: 1px solid #fcd34d;
+      color: #92400e;
+      font-size: 13px;
+      max-width: 88%;
+      text-align: center;
+      border-radius: 12px;
+      width: auto;
+    }
+
+    /* ── Message timestamp ── */
+    .msg-time {
+      font-size: 10px; color: #d1d5db;
+      text-align: right; margin-top: 2px;
+      padding: 0 4px;
+    }
+    .msg-row.ai .msg-time { text-align: left; }
+
+    /* ── End-of-chat survey ── */
+    .survey-card {
+      background: #fff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 16px;
+      padding: 18px;
+      margin: 4px 0;
+      width: 100%;
+    }
+    .survey-title {
+      font-size: 14px; font-weight: 600; color: #111;
+      margin-bottom: 4px;
+    }
+    .survey-subtitle {
+      font-size: 12px; color: #9ca3af; margin-bottom: 14px;
+    }
+    .survey-label {
+      font-size: 12px; font-weight: 600; color: #374151;
+      margin-bottom: 8px; display: block;
+    }
+    /* Star rating */
+    .star-row {
+      display: flex; gap: 6px; margin-bottom: 16px;
+    }
+    .star-btn {
+      font-size: 24px; background: none; border: none;
+      cursor: pointer; padding: 2px; border-radius: 6px;
+      transition: transform 0.1s;
+      filter: grayscale(1) opacity(0.4);
+    }
+    .star-btn:hover, .star-btn.active {
+      filter: none; transform: scale(1.15);
+    }
+    /* Resolved buttons */
+    .resolved-row {
+      display: flex; gap: 8px; margin-bottom: 16px;
+    }
+    .resolved-btn {
+      flex: 1; padding: 7px 0; border-radius: 10px;
+      border: 1.5px solid #e5e7eb; background: #fff;
+      font-size: 13px; font-weight: 500; color: #374151;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .resolved-btn:hover { border-color: #a5b4fc; background: #f0f4ff; }
+    .resolved-btn.selected { border-color: #4f46e5; background: #eef2ff; color: #4f46e5; }
+    /* Comment box */
+    .survey-comment {
+      width: 100%; border: 1.5px solid #e5e7eb; border-radius: 10px;
+      padding: 9px 12px; font-size: 13px; font-family: inherit;
+      resize: none; outline: none; color: #111;
+      transition: border-color 0.15s; margin-bottom: 14px;
+    }
+    .survey-comment:focus { border-color: #a5b4fc; }
+    /* Submit */
+    .survey-submit {
+      width: 100%; padding: 11px; border-radius: 12px;
+      background: #4f46e5; color: #fff; border: none;
+      font-size: 14px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .survey-submit:hover { background: #4338ca; }
+    .survey-submit:disabled { background: #c7d2fe; cursor: not-allowed; }
+    .survey-thanks {
+      text-align: center; padding: 12px 0;
+      font-size: 14px; color: #4f46e5; font-weight: 500;
+    }
+
+    /* ── Typing indicator ── */
+    .typing-row { display: flex; align-items: flex-end; gap: 8px; }
+    .typing-bubble {
+      background: #f3f4f6;
+      padding: 12px 16px;
+      border-radius: 18px;
+      border-bottom-left-radius: 4px;
+      display: flex; gap: 4px; align-items: center;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #9ca3af;
+      animation: bounce 1.2s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-6px); }
+    }
+
+    /* ── Order card ── */
+    .order-card {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-top: 8px;
+      max-width: 100%;
+      font-size: 13px;
+    }
+    .order-card-header {
+      background: #f9fafb;
+      padding: 10px 14px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .order-card-id { font-weight: 600; color: #111; }
+    .order-status-badge {
+      font-size: 11px; font-weight: 600;
+      padding: 2px 8px; border-radius: 20px;
+    }
+    .status-delivered { background: #dcfce7; color: #15803d; }
+    .status-out_for_delivery { background: #dbeafe; color: #1d4ed8; }
+    .status-processing { background: #fef9c3; color: #92400e; }
+    .status-returned { background: #f3f4f6; color: #6b7280; }
+    .order-card-body { padding: 10px 14px; }
+    .order-card-row {
+      display: flex; justify-content: space-between;
+      margin-bottom: 4px; color: #374151;
+    }
+    .order-card-row .label { color: #9ca3af; }
+    .order-card-track {
+      margin-top: 8px; padding-top: 8px; border-top: 1px solid #f0f0f0;
+    }
+    .track-link {
+      color: #4f46e5; font-size: 12px; text-decoration: none; font-weight: 500;
+    }
+
+    /* ── Quick replies ── */
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 0 0 4px;
+    }
+    .qr-btn {
+      background: #fff;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 20px;
+      padding: 7px 14px;
+      font-size: 13px;
+      color: #4f46e5;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .qr-btn:hover {
+      background: #f0f4ff;
+      border-color: #a5b4fc;
+    }
+    .qr-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+
+    /* ── Composer ── */
+    .composer {
+      border-top: 1px solid #f0f0f0;
+      padding: 12px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: #fff;
+      flex-shrink: 0;
+    }
+    .composer-input {
+      flex: 1;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 22px;
+      padding: 10px 16px;
+      font-size: 14px;
+      outline: none;
+      resize: none;
+      max-height: 100px;
+      font-family: inherit;
+      transition: border-color 0.15s;
+      line-height: 1.4;
+    }
+    .composer-input:focus { border-color: #a5b4fc; }
+    .composer-input::placeholder { color: #9ca3af; }
+    .send-btn {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: #4f46e5;
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+    .send-btn:hover { background: #4338ca; }
+    .send-btn:disabled { background: #c7d2fe; cursor: not-allowed; }
+    .send-btn svg { width: 18px; height: 18px; fill: #fff; }
+
+
+    /* ── Scrollbar ── */
+    .thread::-webkit-scrollbar { width: 4px; }
+    .thread::-webkit-scrollbar-track { background: transparent; }
+    .thread::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 4px; }
+  </style>
+</head>
+<body>
+
+<div class="phone">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-avatar">A</div>
+    <div class="header-info">
+      <div class="header-name">Aria — ShopFlow Support</div>
+      <div class="header-status" id="headerStatus">Online now</div>
+    </div>
+    <button class="header-btn" title="Call instead">&#9990;</button>
+    <button class="header-btn" title="End chat" onclick="endChat()" id="endChatBtn">&#10005;</button>
+  </div>
+
+  <!-- AI Disclosure -->
+  <div class="ai-banner">
+    <div class="ai-banner-text">
+      <span>🤖</span> You're chatting with an AI assistant
+    </div>
+    <button class="ai-banner-link" onclick="requestHuman()">Talk to a person</button>
+  </div>
+
+  <!-- Message thread -->
+  <div class="thread" id="thread">
+    <!-- Welcome message injected by JS -->
+  </div>
+
+  <!-- Composer -->
+  <div class="composer">
+    <textarea
+      class="composer-input"
+      id="input"
+      placeholder="Type a message…"
+      rows="1"
+      onkeydown="handleKey(event)"
+      oninput="autoResize(this); resetPlaceholder(this)"
+    ></textarea>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+  </div>
+
+</div>
+
+<!-- Demo controls — sidebar, never overlaps phone -->
+<div class="demo-sidebar">
+  <div class="demo-sidebar-label">Demo controls</div>
+  <button class="demo-btn" onclick="resetDemo()">↺ &nbsp;Reset demo</button>
+  <button class="demo-btn" onclick="window.open('http://localhost:5000/api/history?session_id=' + SESSION_ID)">🔍 &nbsp;View logs</button>
+</div>
+
+<script>
+  const API = 'http://localhost:5000';
+  const SESSION_ID = 'demo-' + Math.random().toString(36).slice(2, 8);
+  let isWaiting = false;
+  let surveyShown = false;
+  let messageCount = 0; // tracks exchanges so survey doesn't fire on first reply
+  let selectedStar = 0;
+  let selectedResolved = '';
+
+  // Phrases that signal the customer is done — triggers the survey
+  const CLOSING_PHRASES = /^(thanks|thank you|thx|ty|all good|i'm all set|all set|that's all|that's it|no thanks|no thank you|goodbye|bye|done|perfect|great|got it|sounds good|got what i needed)/i;
+
+  // ── Welcome state ─────────────────────────────────────────────────────────
+
+  function showWelcome() {
+    const thread = document.getElementById('thread');
+    thread.innerHTML = '';
+    surveyShown = false;
+    messageCount = 0;
+    selectedStar = 0;
+    selectedResolved = '';
+    // Restore end-chat button
+    const btn = document.getElementById('endChatBtn');
+    btn.innerHTML = '&#10005;';
+    btn.title = 'End chat';
+    btn.onclick = endChat;
+    // Unlock composer
+    setWaiting(false);
+    const inp = document.getElementById('input');
+    inp.placeholder = 'Type a message…';
+    inp.value = '';
+    inp.style.height = 'auto';
+    document.getElementById('headerStatus').textContent = 'Online now';
+    document.getElementById('headerStatus').style.color = '#22c55e';
+
+    addSystemMessage('Today ' + formatTime());
+
+    addAIMessage(
+      'Hi Maya 👋 I\'m Aria, your ShopFlow support assistant. What can I help you with today?',
+      ['Track an order', 'Return an item', 'Billing question', 'Something else']
+    );
+  }
+
+  // ── Message rendering ──────────────────────────────────────────────────────
+
+  function addUserMessage(text) {
+    const thread = document.getElementById('thread');
+    const row = document.createElement('div');
+    row.className = 'msg-row user';
+    row.innerHTML = `
+      <div class="user-msg-content">
+        <div class="bubble user">${escHtml(text)}</div>
+        <div class="msg-time">${formatTime()}</div>
+      </div>
+    `;
+    thread.appendChild(row);
+    scrollToBottom();
+  }
+
+  function addAIMessage(text, options = []) {
+    const thread = document.getElementById('thread');
+    const row = document.createElement('div');
+    row.className = 'msg-row ai';
+
+    // Parse [OPTIONS: ...] from text if present
+    let displayText = text;
+    let parsedOptions = options;
+    const optMatch = text.match(/\[OPTIONS:\s*([^\]]+)\]/);
+    if (optMatch) {
+      displayText = text.replace(optMatch[0], '').trim();
+      parsedOptions = optMatch[1].split('|').map(s => s.trim());
+    }
+
+    // Parse markdown-style bold
+    displayText = displayText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Convert newlines to <br>
+    displayText = displayText.replace(/\n/g, '<br>');
+
+    let optionsHtml = '';
+    if (parsedOptions.length > 0) {
+      const btns = parsedOptions.map(o =>
+        `<button class="qr-btn" onclick="sendQuickReply('${escAttr(o)}')">${escHtml(o)}</button>`
+      ).join('');
+      optionsHtml = `<div class="quick-replies">${btns}</div>`;
+    }
+
+    row.innerHTML = `
+      <div class="msg-avatar">A</div>
+      <div class="ai-msg-content">
+        <div class="bubble ai">${displayText}</div>
+        ${optionsHtml}
+        <div class="msg-time">${formatTime()}</div>
+      </div>
+    `;
+    thread.appendChild(row);
+    scrollToBottom();
+  }
+
+  function addSystemMessage(text) {
+    const thread = document.getElementById('thread');
+    const row = document.createElement('div');
+    row.className = 'msg-row system';
+    row.innerHTML = `<div class="bubble system">${escHtml(text)}</div>`;
+    thread.appendChild(row);
+  }
+
+  function addEscalationBanner(agentName, waitTime) {
+    const thread = document.getElementById('thread');
+    const row = document.createElement('div');
+    row.className = 'msg-row system';
+    row.innerHTML = `
+      <div class="bubble escalated">
+        🧑‍💼 Connecting you to <strong>${escHtml(agentName)}</strong><br>
+        Estimated wait: <strong>${escHtml(waitTime)}</strong><br>
+        <small style="opacity:0.7">Your conversation history has been shared with the agent.</small>
+      </div>
+    `;
+    thread.appendChild(row);
+
+    // Simulate agent join after delay
+    setTimeout(() => {
+      addSystemMessage(`${agentName} from Customer Support has joined the chat`);
+      addHumanAgentMessage(agentName);
+    }, 3500);
+
+    scrollToBottom();
+  }
+
+  function addHumanAgentMessage(agentName) {
+    const thread = document.getElementById('thread');
+    const row = document.createElement('div');
+    row.className = 'msg-row ai';
+    row.innerHTML = `
+      <div class="msg-avatar" style="background: linear-gradient(135deg,#0ea5e9,#38bdf8)">
+        ${escHtml(agentName.charAt(0))}
+      </div>
+      <div>
+        <div class="bubble ai">
+          Hi Maya, I'm ${escHtml(agentName)} and I can see your conversation with Aria. I'm looking into this now and will be right with you.
+        </div>
+        <div class="msg-time">${agentName} · ${formatTime()}</div>
+      </div>
+    `;
+    thread.appendChild(row);
+    scrollToBottom();
+  }
+
+  function showTyping() {
+    removeTyping();
+    const thread = document.getElementById('thread');
+    const row = document.createElement('div');
+    row.className = 'typing-row';
+    row.id = 'typing';
+    row.innerHTML = `
+      <div class="msg-avatar">A</div>
+      <div class="typing-bubble">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    `;
+    thread.appendChild(row);
+    scrollToBottom();
+  }
+
+  function removeTyping() {
+    document.getElementById('typing')?.remove();
+  }
+
+  // ── Send logic ────────────────────────────────────────────────────────────
+
+  async function sendMessage(overrideText) {
+    const input = document.getElementById('input');
+    const text = (overrideText || input.value).trim();
+    if (!text || isWaiting) return;
+
+    // Clear input, lock UI
+    input.value = '';
+    autoResize(input);
+    setWaiting(true);
+
+    addUserMessage(text);
+    showTyping();
+
+    // Detect closing phrases after at least 2 exchanges — trigger survey
+    const isClosing = messageCount >= 2 && CLOSING_PHRASES.test(text.trim());
+
+    try {
+      const res = await fetch(`${API}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: SESSION_ID, message: text })
+      });
+
+      const data = await res.json();
+      removeTyping();
+
+      if (data.error) {
+        addAIMessage('Sorry, something went wrong on my end. Please try again or speak with a representative.');
+      } else {
+        addAIMessage(data.response);
+        messageCount++;
+
+        if (data.escalated) {
+          addEscalationBanner('Sarah Chen', '3–5 minutes');
+        }
+
+        // Auto-trigger survey on closing phrase
+        if (isClosing) {
+          setTimeout(() => showEndSurvey(), 800);
+        }
+      }
+    } catch (err) {
+      removeTyping();
+      addAIMessage('I\'m having trouble connecting right now. Please try again in a moment.');
+      console.error(err);
+    }
+
+    setWaiting(false);
+  }
+
+  function sendQuickReply(text) {
+    // Disable all quick-reply buttons in thread
+    document.querySelectorAll('.qr-btn').forEach(b => b.disabled = true);
+
+    // "End conversation" — skip the backend, go straight to survey
+    if (text.toLowerCase() === 'end conversation') {
+      addUserMessage(text);
+      setTimeout(() => endChat(), 400);
+      return;
+    }
+
+    // "Something else" — don't send yet. Show the AI asking for details,
+    // focus the input, and let the customer describe in their own words.
+    if (text.toLowerCase() === 'something else') {
+      addUserMessage(text);
+      setTimeout(() => {
+        addAIMessage("Of course — can you tell me a little more about what's going on? I want to make sure I get you the right help.");
+        const input = document.getElementById('input');
+        input.placeholder = "Describe your issue…";
+        input.focus();
+      }, 400);
+      return;
+    }
+
+    sendMessage(text);
+  }
+
+  function requestHuman() {
+    sendMessage('I want to talk to a real person');
+  }
+
+  // ── End-of-chat survey ────────────────────────────────────────────────────
+
+  function endChat() {
+    if (surveyShown) return;
+    // Mark chat as ended in header
+    document.getElementById('headerStatus').textContent = 'Chat ended';
+    document.getElementById('headerStatus').style.color = '#9ca3af';
+    // Swap ✕ end-chat button → ⌂ home button
+    const btn = document.getElementById('endChatBtn');
+    btn.innerHTML = '&#8962;';
+    btn.title = 'New chat';
+    btn.onclick = resetDemo;
+    // Lock the composer
+    setWaiting(true);
+    document.getElementById('input').placeholder = 'Chat ended';
+    addSystemMessage('Chat ended · ' + formatTime());
+    setTimeout(() => showEndSurvey(), 400);
+  }
+
+  function showEndSurvey() {
+    if (surveyShown) return;
+    surveyShown = true;
+
+    const thread = document.getElementById('thread');
+    const card = document.createElement('div');
+    card.id = 'surveyCard';
+    card.innerHTML = `
+      <div class="survey-card">
+        <div class="survey-title">How did we do today?</div>
+        <div class="survey-subtitle">Your feedback helps us improve.</div>
+
+        <span class="survey-label">Overall satisfaction</span>
+        <div class="star-row" id="starRow">
+          <button class="star-btn" onclick="selectStar(1)" title="Very dissatisfied">😞</button>
+          <button class="star-btn" onclick="selectStar(2)" title="Dissatisfied">😕</button>
+          <button class="star-btn" onclick="selectStar(3)" title="Neutral">😐</button>
+          <button class="star-btn" onclick="selectStar(4)" title="Satisfied">🙂</button>
+          <button class="star-btn" onclick="selectStar(5)" title="Very satisfied">😄</button>
+        </div>
+
+        <span class="survey-label">Was your issue resolved?</span>
+        <div class="resolved-row">
+          <button class="resolved-btn" onclick="selectResolved(this,'yes')">✓ Yes</button>
+          <button class="resolved-btn" onclick="selectResolved(this,'partially')">~ Partially</button>
+          <button class="resolved-btn" onclick="selectResolved(this,'no')">✗ No</button>
+        </div>
+
+        <span class="survey-label">Anything else to share? <span style="font-weight:400;color:#9ca3af">(optional)</span></span>
+        <textarea class="survey-comment" id="surveyComment" rows="2" placeholder="Tell us what we could do better…"></textarea>
+
+        <button class="survey-submit" id="surveySubmit" onclick="submitSurvey()" disabled>Submit feedback</button>
+      </div>
+    `;
+    thread.appendChild(card);
+    scrollToBottom();
+  }
+
+  function selectStar(n) {
+    selectedStar = n;
+    const btns = document.querySelectorAll('.star-btn');
+    btns.forEach((b, i) => b.classList.toggle('active', i < n));
+    checkSurveyReady();
+  }
+
+  function selectResolved(btn, value) {
+    selectedResolved = value;
+    document.querySelectorAll('.resolved-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    checkSurveyReady();
+  }
+
+  function checkSurveyReady() {
+    const submit = document.getElementById('surveySubmit');
+    if (submit) submit.disabled = !(selectedStar > 0 && selectedResolved);
+  }
+
+  function submitSurvey() {
+    const comment = document.getElementById('surveyComment')?.value.trim() || '';
+    const result = {
+      session_id: SESSION_ID,
+      satisfaction: selectedStar,
+      resolved: selectedResolved,
+      comment,
+      timestamp: new Date().toISOString()
+    };
+    console.log('Survey submitted:', JSON.stringify(result, null, 2));
+
+    // Replace the card content with a thank-you message
+    const card = document.getElementById('surveyCard');
+    if (card) {
+      card.innerHTML = `
+        <div class="survey-card">
+          <div class="survey-thanks">
+            ${ selectedStar >= 4 ? '😄' : selectedStar === 3 ? '🙂' : '🙏' }
+            Thanks for your feedback, Maya!<br>
+            <span style="font-size:12px;color:#9ca3af;font-weight:400">It helps us improve every day.</span>
+          </div>
+        </div>
+      `;
+    }
+    scrollToBottom();
+  }
+
+  // ── Demo helpers ──────────────────────────────────────────────────────────
+
+  async function resetDemo() {
+    await fetch(`${API}/api/reset`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: SESSION_ID })
+    });
+    showWelcome();
+  }
+
+  // ── Utility ───────────────────────────────────────────────────────────────
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  }
+
+  function resetPlaceholder(el) {
+    if (el.value.length > 0) el.placeholder = 'Type a message…';
+  }
+
+  function setWaiting(val) {
+    isWaiting = val;
+    document.getElementById('sendBtn').disabled = val;
+    document.getElementById('input').disabled = val;
+  }
+
+  function scrollToBottom() {
+    const thread = document.getElementById('thread');
+    setTimeout(() => thread.scrollTop = thread.scrollHeight, 50);
+  }
+
+  function formatTime() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function escHtml(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  function escAttr(str) {
+    return String(str).replace(/'/g, "\\'");
+  }
+
+  // ── Init ──────────────────────────────────────────────────────────────────
+  showWelcome();
+</script>
+</body>
+</html>

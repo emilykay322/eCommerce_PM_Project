@@ -1,0 +1,17 @@
+# API keys — never commit the real .env
+.env
+
+# Windows startup script (has local Python path hardcoded)
+start.bat
+
+# Temp / test files
+response.json
+
+# Python bytecode
+__pycache__/
+*.pyc
+*.pyo
+
+# OS files
+.DS_Store
+Thumbs.db
